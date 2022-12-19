@@ -1,0 +1,70 @@
+# This file exists so you can easily regenerate your project.
+#
+# `cookiepatcher` is a convenient shim around `cookiecutter`
+# for regenerating projects (it will generate a .cookiecutterrc
+# automatically for any template). To use it:
+#
+#    pip install cookiepatcher
+#    cookiepatcher gh:ionelmc/cookiecutter-pylibrary python-spipy
+#
+# See:
+#    https://pypi.org/project/cookiepatcher
+#
+# Alternatively, you can run:
+#
+#    cookiecutter --overwrite-if-exists --config-file=python-spipy/.cookiecutterrc gh:ionelmc/cookiecutter-pylibrary
+
+default_context:
+    allow_tests_inside_package: 'no'
+    appveyor:                  'no'
+    c_extension_function:      'longest'
+    c_extension_module:        '_spipy'
+    c_extension_optional:      'no'
+    c_extension_support:       'no'
+    c_extension_test_pypi:     'no'
+    c_extension_test_pypi_username: 'BenjaminDoran'
+    codacy:                    'no'
+    codacy_projectid:          '[Get ID from https://app.codacy.com/gh/BenjaminDoran/python-spipy/settings]'
+    codeclimate:               'no'
+    codecov:                   'yes'
+    command_line_interface:    'plain'
+    command_line_interface_bin_name: 'spipy'
+    coveralls:                 'no'
+    distribution_name:         'spipy'
+    email:                     'bend@uchicago.edu'
+    full_name:                 'Benjamin Doran'
+    github_actions:            'yes'
+    github_actions_osx:        'yes'
+    github_actions_windows:    'yes'
+    license:                   'BSD 3-Clause License'
+    linter:                    'flake8'
+    package_name:              'spipy'
+    pre_commit:                'yes'
+    pre_commit_formatter:      'black'
+    project_name:              'SPIpy'
+    project_short_description: 'Tools for running spectral phylogenetic inference'
+    pypi_badge:                'yes'
+    pypi_disable_upload:       'no'
+    release_date:              'today'
+    repo_hosting:              'github.com'
+    repo_hosting_domain:       'github.com'
+    repo_main_branch:          'main'
+    repo_name:                 'python-spipy'
+    repo_username:             'BenjaminDoran'
+    requiresio:                'yes'
+    scrutinizer:               'no'
+    setup_py_uses_pytest_runner: 'no'
+    setup_py_uses_setuptools_scm: 'no'
+    sphinx_docs:               'yes'
+    sphinx_docs_hosting:       'https://python-spipy.readthedocs.io/'
+    sphinx_doctest:            'no'
+    sphinx_theme:              'sphinx-rtd-theme'
+    test_matrix_configurator:  'no'
+    test_matrix_separate_coverage: 'no'
+    travis:                    'no'
+    travis_osx:                'no'
+    version:                   '0.0.1'
+    version_manager:           'bump2version'
+    website:                   'https://github.com/BenjaminDoran/BenjaminDoran.github.io'
+    year_from:                 '2022'
+    year_to:                   '2022'
