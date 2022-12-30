@@ -68,7 +68,7 @@ Installation
 
 You can also install the in-development version with::
 
-    pip install https://github.com/BenjaminDoran/python-spipy/archive/main.zip
+    pip install https://github.com/aramanlab/spipy/archive/main.zip
 
 
 Documentation
