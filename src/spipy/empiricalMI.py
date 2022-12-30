@@ -5,21 +5,22 @@ from scipy.stats.contingency import crosstab
 
 from typing import List, Union
 
-def empiricalMI_2dcont(a: Union[np.ndarray, List[float]], b: Union[np.ndarray, List[float]], nbins: int=50, base: float=np.e, normalize: bool=False) -> float:
+
+def empiricalMI_2dcont(a: Union[np.ndarray, List[float]], b: Union[np.ndarray, List[float]], nbins: int = 50, base: float = np.e, normalize: bool = False) -> float:
     """
     computes empirical MI from identity of ``H(a) + H(b) - H(a,b)``. where
     ``H := -sum(p(x)*log(p(x))) + log(Δ)``
     the ``+ log(Δ)`` corresponds to the log binwidth and unbiases the entropy estimate from binwidth choice.
     estimates are roughly stable from ``32`` (``32^2 ≈ 1000`` total bins) to size of sample. going from a small undersestimate to a small overestimate across that range.
     We recommend choosing the `sqrt(mean(1000, samplesize))` for `nbins` argument, or taking a few estimates across that range and averaging.
-    
+
     Args:
     * a, vecter of length N
     * b, AbstractVector of length N
     * nbins, number of bins per side, use 1000 < nbins^2 < length(a) for best results
     * base, base unit of MI (defaults to nats with base=ℯ)
     * normalize, bool, whether to normalize with mi / mean(ha, hb)
-    
+
     Returns:
     * MI
     """
@@ -55,21 +56,21 @@ def empiricalMI_2dcont(a: Union[np.ndarray, List[float]], b: Union[np.ndarray, L
     return mi
 
 
-def empiricalMI_masked(ab: Union[np.ndarray, List[float]], mask: Union[np.ndarray, List[bool]], nbins: int=100, base: float=np.e, normalize: bool=False) -> float:
+def empiricalMI_masked(ab: Union[np.ndarray, List[float]], mask: Union[np.ndarray, List[bool]], nbins: int = 100, base: float = np.e, normalize: bool = False) -> float:
     """
     computes empirical MI from identity of ``H(a,b) - (Na/N * ha + Nb/N * hb)``. where
     ``H := -sum(p(x)*log(p(x))) + log(Δ)``
     the ``+ log(Δ)`` corresponds to the log binwidth and unbiases the entropy estimate from binwidth choice.
     estimates are roughly stable from ``32`` (``32^2 ≈ 1000`` total bins) to size of sample. going from a small undersestimate to a small overestimate across that range.
     We recommend choosing the `sqrt(mean(1000, samplesize))` for `nbins` argument, or taking a few estimates across that range and averaging.
-    
+
     Args:
     * ab, vecter of length N continous variables, vector to be binned
     * mask, vector of bools that groups `ab` to an in vs. out group. Mutual information is computed between these two groups.
     * nbins, number of bins per side, use 1000 < nbins^2 < length(a) for best results
     * base, base unit of MI (defaults to nats with base=ℯ)
     * normalize, bool, whether to normalize with mi / mean(ha, hb)
-    
+
     Returns:
     * MI
     """
@@ -83,7 +84,7 @@ def empiricalMI_masked(ab: Union[np.ndarray, List[float]], mask: Union[np.ndarra
     # if mask is not grouping than there is no added information
     if Na == 0 or Nb == 0:
         return 0.0
-    
+
     ## otherwise ##
 
     # form edges
@@ -108,13 +109,14 @@ def empiricalMI_masked(ab: Union[np.ndarray, List[float]], mask: Union[np.ndarra
     hab = np.sum(abfreq * np.log(abfreq)) + np.log(base, Δ)
 
     # mi
-    mi = hab - (Na / N * ha + Nb / N * hb) # original had flipped signs
+    mi = hab - (Na / N * ha + Nb / N * hb)  # original had flipped signs
     # return (mi = mi, ha = ha, hb = hb, hab = hab)
     if normalize:
         return 2 * mi / (ha + hb)
     return mi
 
-def empiricalMI_categorical(a: Union[np.ndarray, List[int], List[str]], b: Union[np.ndarray, List[int], List[str]], base: float=np.e, normalize: bool=False) -> float:
+
+def empiricalMI_categorical(a: Union[np.ndarray, List[int], List[str]], b: Union[np.ndarray, List[int], List[str]], base: float = np.e, normalize: bool = False) -> float:
     """
     Standard mutual information calculation on catagorical variables. 
     computes a contigency table of the lists `a` and `b` 
@@ -126,7 +128,7 @@ def empiricalMI_categorical(a: Union[np.ndarray, List[int], List[str]], b: Union
     * v, vecter of length N 
     * base, base unit of MI (defaults to nats with base=ℯ)
     * normalize, bool, whether to normalize with mi / mean(ha, hb)
-    
+
     Returns:
     * MI
 
