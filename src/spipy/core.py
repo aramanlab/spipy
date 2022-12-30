@@ -25,7 +25,7 @@ def distmatrixsize(num, bits=64):
 
 
 def getintervalsIQR(S: np.ndarray, alpha: float = 1.5, ql: float = 0.25, qh: float = 0.75) -> List[range]:
-    """    
+    """
     finds spectral partitions. Computes log difference between each subsequent singular
     value and by default selects the differences that are larger than `ALPHA * Q3(differences)`
     i.e. finds breaks in the spectrum that explain smaller scales of variance
@@ -33,7 +33,7 @@ def getintervalsIQR(S: np.ndarray, alpha: float = 1.5, ql: float = 0.25, qh: flo
     Args:
     * S = singular values of a SVD factorization
     * alpha = scalar multiple of `q`
-    * q = which quantile of log differences to use; by default Q3 
+    * q = which quantile of log differences to use; by default Q3
 
     Returns:
     * AbstractVector{UnitRange} indices into S corresponding to the spectral partitions
@@ -47,14 +47,14 @@ def getintervalsIQR(S: np.ndarray, alpha: float = 1.5, ql: float = 0.25, qh: flo
     # Find all log differences that are greater than θ
     breaks = np.argwhere(potentialbreaks > θ).flatten() + 1
     # Concatenate the indices of the breaks with the start and end indices
-    starts, ends = np.concatenate(([0], breaks)), np.concatenate((breaks, [len(S)-1]))
+    starts, ends = np.concatenate(([0], breaks)), np.concatenate((breaks, [len(S)]))
     # Create a list of ranges from the starts and ends indices
-    intervals = [range(s, e+1) for s, e in zip(starts, ends)]
+    intervals = [range(s, e) for s, e in zip(starts, ends)]
     return intervals
 
 
 def getintervals(S: np.ndarray, alpha: float = 1.0, q: float = .5) -> List[range]:
-    """    
+    """
     finds spectral partitions. Computes log difference between each subsequent singular
     value and by default selects the differences that are larger than `1.0 * Q2(differences)`
     i.e. finds breaks in the spectrum that explain smaller scales of variance
@@ -62,7 +62,7 @@ def getintervals(S: np.ndarray, alpha: float = 1.0, q: float = .5) -> List[range
     Args:
     * S = singular values of a SVD factorization
     * alpha = scalar multiple of `q`
-    * q = which quantile of log differences to use; by default Q2 
+    * q = which quantile of log differences to use; by default Q2
 
     Returns:
     * AbstractVector{UnitRange} indices into S corresponding to the spectral partitions
@@ -74,9 +74,9 @@ def getintervals(S: np.ndarray, alpha: float = 1.0, q: float = .5) -> List[range
     # Find all log differences that are greater than θ
     breaks = np.argwhere(potentialbreaks > θ).flatten() + 1
     # Concatenate the indices of the breaks with the start and end indices
-    starts, ends = np.concatenate(([0], breaks)), np.concatenate((breaks, [len(S)-1]))
+    starts, ends = np.concatenate(([0], breaks)), np.concatenate((breaks, [len(S)]))
     # Create a list of ranges from the starts and ends indices
-    intervals = [range(s, e+1) for s, e in zip(starts, ends)]
+    intervals = [range(s, e) for s, e in zip(starts, ends)]
     return intervals
 
 
@@ -84,7 +84,7 @@ def calc_spi_mtx(vecs: np.ndarray, vals: np.ndarray, intervals: Union[np.ndarray
     """
     computes the cumulative spectral residual distance for spectral phylogenetic inference
     ```(∑_{p ∈ P} ||UₚΣₚ||₂)²```
-    where ``P`` are the spectral partitions found with `getintervals`. 
+    where ``P`` are the spectral partitions found with `getintervals`.
 
     Args:
     * A,usv = AbstractMatrix or SVD factorization (AbstractMatrix is just passed to `svd()` before calculation)
@@ -116,7 +116,8 @@ def calc_spi_trace(vecs: np.ndarray, vals: np.ndarray, intervals: Union[np.ndarr
     * groups: usually calculated with `getintervals(usv.S; alpha=alpha, q=q)`
 
     Returns:
-    * matrix where each column is the condensed uppertriangle of a distance matrix, (use scipy.spatial.distance.squareform() to recover full matrix)
+    * matrix where each column is the condensed uppertriangle of a distance matrix,
+     (use scipy.spatial.distance.squareform() to recover full matrix)
     """
     # Initialize the tensor of squared spectral partition distances with zeros
     sprmtx = np.zeros((int(comb(vecs.shape[0], 2)), len(intervals)))
@@ -130,7 +131,7 @@ def calc_spi_trace(vecs: np.ndarray, vals: np.ndarray, intervals: Union[np.ndarr
 
 def calc_spcorr_mtx(vecs: np.ndarray, vals: np.ndarray, window=None):
     """
-    Calculates pairwise spectral (pearson) correlations for a set of observations. 
+    Calculates pairwise spectral (pearson) correlations for a set of observations.
 
     Args:
     * `vecs`, set of left singular vectors or principal components with observations on rows and components on columns
@@ -140,7 +141,7 @@ def calc_spcorr_mtx(vecs: np.ndarray, vals: np.ndarray, window=None):
     Returns:
     * correlation matrix where each pixel is the correlation between a pair of observations
     """
-    window = range(len(vals)) if window == None else window
+    window = range(len(vals)) if window is None else window
     wvecs = vecs[:, window] @ np.diag(vals[window])
     return np.corrcoef(wvecs)
 
@@ -157,7 +158,8 @@ def calc_spcorr_trace(vecs: np.ndarray, vals: np.ndarray, intervals: List[range]
     * groups: usually overlapping windows such as `[range(i,(i+5)) for i in range(len(vals)-5+1)]`
 
     Returns:
-    * matrix where each column is the condensed uppertriangle of a correlation matrix, (use scipy.spatial.distance.squareform() to recover full matrix)
+    * matrix where each column is the condensed uppertriangle of a correlation matrix,
+     (use scipy.spatial.distance.squareform() to recover full matrix)
     """
     wvecs = vecs @ np.diag(vals)
     sprmtx = np.zeros((int(comb(vecs.shape[0], 2)), len(intervals)))
@@ -169,18 +171,18 @@ def calc_spcorr_trace(vecs: np.ndarray, vals: np.ndarray, intervals: List[range]
 
 def projectout(U: np.ndarray, S: np.ndarray, Vh: np.ndarray, window=None) -> np.ndarray:
     """
-    recreates original matrix i.e. calculates ``UΣV'`` or if window is included 
+    recreates original matrix i.e. calculates ``UΣV'`` or if window is included
     creates a spectrally filtered version of the original matrix off of the provided components in `window`.
     """
-    window = range(len(S)) if window == None else window
-    return U[:, window] @ np.diag(S)[window, window] @ Vh[window, :]
+    window = range(len(S)) if window is None else window
+    return U[:, window] @ np.diag(S[window]) @ Vh[window, :]
 
 
 def projectinLSV(M: np.ndarray, S: np.ndarray, Vh: np.ndarray, window=None) -> np.ndarray:
     """
     returns estimated left singular vectors (aka: LSV or Û) for new data based on already calculated SVD factorization
     """
-    window = range(len(S)) if window == None else window
+    window = range(len(S)) if window is None else window
     return M @ Vh[window, :].transpose() @ inv(np.diag(S[window]))
 
 
@@ -188,7 +190,7 @@ def projectinRSV(M: np.ndarray, U: np.ndarray, S: np.ndarray, window=None) -> np
     """
     returns estimated transposed right singular vectors (RSV or V̂ᵗ) for new data based on already calculated SVD factorization
     """
-    window = range(len(S)) if window == None else window
+    window = range(len(S)) if window is None else window
     return inv(np.diag(S[window])) @ U[:, window].transpose() @ M
 
 
@@ -200,7 +202,7 @@ def UPGMA_tree(Dij: np.ndarray) -> np.ndarray:
 
 
 def nwstr(hc: np.ndarray, tiplabels: Union[List[str], np.ndarray] = None, labelinternalnodes: bool = False) -> str:
-    """ 
+    """
     convert `scipy.cluster.hierarchy.linkage` matrix to newick tree for import to ete3 or other phylo packages
     Args:
     * hc, output from `scipy.cluster.hierarchy.linkage()` a np.ndarray with the first
@@ -214,13 +216,13 @@ def nwstr(hc: np.ndarray, tiplabels: Union[List[str], np.ndarray] = None, labeli
     elif isinstance(tiplabels, np.ndarray):
         tiplabels = [str(x) for x in tiplabels]
     r = hc.shape[0]
-    return _nwstr(hc[:, 0:2], hc[:, 3], r, r, r+1, tiplabels, labelinternalnodes) + ";"
+    return _nwstr(hc[:, 0:2].astype(np.int32), hc[:, 3], r-1, r-1, r+1, tiplabels, labelinternalnodes) + ";"
 
 
 def _nwstr(merges: np.ndarray, heights: np.ndarray, i: int, p: int, n: int, tiplabels: List[str], labelinternalnodes: bool) -> str:
     j, k = merges[i, :]
-    a = f"{tiplabels[abs(j)]}:{heights[i]:.6e}" if j < n else _nwstr(merges, heights, j, i, n, tiplabels, labelinternalnodes)
-    b = f"{tiplabels[abs(k)]}:{heights[i]:.6e}" if k < n else _nwstr(merges, heights, k, i, n, tiplabels, labelinternalnodes)
-    nid = f"node{len(heights) + i + 1}" if labelinternalnodes else ""
+    a = f"{tiplabels[abs(j)]}:{heights[i]:.6e}" if j < n else _nwstr(merges, heights, j-n, i, n, tiplabels, labelinternalnodes)
+    b = f"{tiplabels[abs(k)]}:{heights[i]:.6e}" if k < n else _nwstr(merges, heights, k-n, i, n, tiplabels, labelinternalnodes)
+    nid = f"node{len(heights) + i + 2}" if labelinternalnodes else ""
     dist = f"{heights[p] - heights[i]:.6e}"
     return f"({a},{b}){nid}:{dist}"

@@ -6,13 +6,18 @@ from scipy.stats.contingency import crosstab
 from typing import List, Union
 
 
-def empiricalMI_2dcont(a: Union[np.ndarray, List[float]], b: Union[np.ndarray, List[float]], nbins: int = 50, base: float = np.e, normalize: bool = False) -> float:
+def empiricalMI_2dcont(
+    a: Union[np.ndarray, List[float]],
+    b: Union[np.ndarray, List[float]],
+        nbins: int = 50, base: float = np.e, normalize: bool = False) -> float:
     """
     computes empirical MI from identity of ``H(a) + H(b) - H(a,b)``. where
     ``H := -sum(p(x)*log(p(x))) + log(Δ)``
     the ``+ log(Δ)`` corresponds to the log binwidth and unbiases the entropy estimate from binwidth choice.
-    estimates are roughly stable from ``32`` (``32^2 ≈ 1000`` total bins) to size of sample. going from a small undersestimate to a small overestimate across that range.
-    We recommend choosing the `sqrt(mean(1000, samplesize))` for `nbins` argument, or taking a few estimates across that range and averaging.
+    estimates are roughly stable from ``32`` (``32^2 ≈ 1000`` total bins) to size of sample.
+     going from a small undersestimate to a small overestimate across that range.
+    We recommend choosing the `sqrt(mean(1000, samplesize))` for `nbins` argument,
+     or taking a few estimates across that range and averaging.
 
     Args:
     * a, vecter of length N
@@ -46,9 +51,9 @@ def empiricalMI_2dcont(a: Union[np.ndarray, List[float]], b: Union[np.ndarray, L
     Δ_b = breaks_b[1] - breaks_b[0]
 
     # approx entropy
-    ha = -np.sum(afreq * np.log(afreq)) + np.log(Δ_a)
-    hb = -np.sum(bfreq * np.log(bfreq)) + np.log(Δ_b)
-    hab = -np.sum(abfreq * np.log(abfreq)) + np.log(Δ_a * Δ_b)
+    ha = entropy(afreq) + (np.log(Δ_a) / np.log(base))
+    hb = entropy(bfreq) + (np.log(Δ_b) / np.log(base))
+    hab = entropy(abfreq.flatten()) + (np.log(Δ_a * Δ_b) / np.log(base))
 
     # mi
     mi = ha + hb - hab
@@ -56,17 +61,23 @@ def empiricalMI_2dcont(a: Union[np.ndarray, List[float]], b: Union[np.ndarray, L
     return mi
 
 
-def empiricalMI_masked(ab: Union[np.ndarray, List[float]], mask: Union[np.ndarray, List[bool]], nbins: int = 100, base: float = np.e, normalize: bool = False) -> float:
+def empiricalMI_masked(
+        ab: Union[np.ndarray, List[float]],
+        mask: Union[np.ndarray, List[bool]],
+        nbins: int = 100, base: float = np.e, normalize: bool = False) -> float:
     """
     computes empirical MI from identity of ``H(a,b) - (Na/N * ha + Nb/N * hb)``. where
     ``H := -sum(p(x)*log(p(x))) + log(Δ)``
     the ``+ log(Δ)`` corresponds to the log binwidth and unbiases the entropy estimate from binwidth choice.
-    estimates are roughly stable from ``32`` (``32^2 ≈ 1000`` total bins) to size of sample. going from a small undersestimate to a small overestimate across that range.
-    We recommend choosing the `sqrt(mean(1000, samplesize))` for `nbins` argument, or taking a few estimates across that range and averaging.
+    estimates are roughly stable from ``32`` (``32^2 ≈ 1000`` total bins) to size of sample.
+     going from a small undersestimate to a small overestimate across that range.
+    We recommend choosing the `sqrt(mean(1000, samplesize))` for `nbins` argument,
+    or taking a few estimates across that range and averaging.
 
     Args:
     * ab, vecter of length N continous variables, vector to be binned
-    * mask, vector of bools that groups `ab` to an in vs. out group. Mutual information is computed between these two groups.
+    * mask, vector of bools that groups `ab` to an in vs. out group.
+     Mutual information is computed between these two groups.
     * nbins, number of bins per side, use 1000 < nbins^2 < length(a) for best results
     * base, base unit of MI (defaults to nats with base=ℯ)
     * normalize, bool, whether to normalize with mi / mean(ha, hb)
@@ -85,8 +96,7 @@ def empiricalMI_masked(ab: Union[np.ndarray, List[float]], mask: Union[np.ndarra
     if Na == 0 or Nb == 0:
         return 0.0
 
-    ## otherwise ##
-
+    # otherwise
     # form edges
     edges = np.linspace(np.min(ab), np.max(ab), nbins)
 
@@ -104,9 +114,9 @@ def empiricalMI_masked(ab: Union[np.ndarray, List[float]], mask: Union[np.ndarra
     abfreq = ab_counts / N
 
     # approx entropy
-    ha = np.sum(afreq * np.log(afreq)) + np.log(base, Δ)
-    hb = np.sum(bfreq * np.log(bfreq)) + np.log(base, Δ)
-    hab = np.sum(abfreq * np.log(abfreq)) + np.log(base, Δ)
+    ha = entropy(afreq, base=base) + (np.log(Δ) / np.log(base))
+    hb = entropy(bfreq, base=base) + (np.log(Δ) / np.log(base))
+    hab = entropy(abfreq, base=base) + (np.log(Δ) / np.log(base))
 
     # mi
     mi = hab - (Na / N * ha + Nb / N * hb)  # original had flipped signs
@@ -116,16 +126,19 @@ def empiricalMI_masked(ab: Union[np.ndarray, List[float]], mask: Union[np.ndarra
     return mi
 
 
-def empiricalMI_categorical(a: Union[np.ndarray, List[int], List[str]], b: Union[np.ndarray, List[int], List[str]], base: float = np.e, normalize: bool = False) -> float:
+def empiricalMI_categorical(
+        a: Union[np.ndarray, List[int], List[str]],
+        b: Union[np.ndarray, List[int], List[str]],
+        base: float = np.e, normalize: bool = False) -> float:
     """
-    Standard mutual information calculation on catagorical variables. 
-    computes a contigency table of the lists `a` and `b` 
-    then calculates mutual information on the identity 
+    Standard mutual information calculation on catagorical variables.
+    computes a contigency table of the lists `a` and `b`
+    then calculates mutual information on the identity
     ``H(a) + H(b) - H(a,b)``. where ``H := -sum(p(x)*log(p(x)))``
 
     Args:
-    * a, vecter of length N 
-    * v, vecter of length N 
+    * a, vecter of length N
+    * v, vecter of length N
     * base, base unit of MI (defaults to nats with base=ℯ)
     * normalize, bool, whether to normalize with mi / mean(ha, hb)
 
@@ -137,7 +150,7 @@ def empiricalMI_categorical(a: Union[np.ndarray, List[int], List[str]], b: Union
     N = counts.sum()
     Ha = entropy(counts.sum(axis=1)/N, base=base)
     Hb = entropy(counts.sum(axis=0)/N, base=base)
-    Hab = entropy(counts/N, base=base)
+    Hab = entropy(counts.flatten()/N, base=base)
     mi = Ha + Hb - Hab
     mi = mi if not normalize else 2 * mi / (Ha+Hb)
     return mi
