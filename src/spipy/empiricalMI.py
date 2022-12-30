@@ -1,6 +1,9 @@
+import numpy as np
+
 from scipy.stats import entropy
 from scipy.stats.contingency import crosstab
 
+from typing import List, Union
 
 def empiricalMI_2dcont(a: Union[np.ndarray, List[float]], b: Union[np.ndarray, List[float]], nbins: int=50, base: float=np.e, normalize: bool=False) -> float:
     """
@@ -110,8 +113,6 @@ def empiricalMI_masked(ab: Union[np.ndarray, List[float]], mask: Union[np.ndarra
     if normalize:
         return 2 * mi / (ha + hb)
     return mi
-
-
 
 def empiricalMI_categorical(a: Union[np.ndarray, List[int], List[str]], b: Union[np.ndarray, List[int], List[str]], base: float=np.e, normalize: bool=False) -> float:
     """

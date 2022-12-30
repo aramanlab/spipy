@@ -5,7 +5,6 @@ from scipy.spatial.distance import pdist, squareform
 from scipy.special import comb
 import humanize
 
-import numpy.typing as npt
 from typing import List, Union
 
 
