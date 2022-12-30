@@ -119,12 +119,12 @@ def calc_spi_trace(vecs: np.ndarray, vals: np.ndarray, intervals: Union[np.ndarr
     * matrix where each column is the condensed uppertriangle of a distance matrix, (use scipy.spatial.distance.squareform() to recover full matrix)
     """
     # Initialize the tensor of squared spectral partition distances with zeros
-    sprmtx = np.zeros((comb(vecs.shape[0], 2), vals.shape[0]))
+    sprmtx = np.zeros((int(comb(vecs.shape[0], 2)), len(intervals)))
     # weight components by singular values
     wvecs = vecs @ np.diag(vals)
     for (i, grp) in enumerate(intervals):
         # Compute the pairwise weighted Euclidean distance between the rows of vecs for the indices in grp
-        sprmtx[i, :] = pdist(wvecs[:, grp], "euclidean")
+        sprmtx[:, i] = pdist(wvecs[:, grp], "euclidean")
     return sprmtx
 
 
@@ -142,10 +142,10 @@ def calc_spcorr_mtx(vecs: np.ndarray, vals: np.ndarray, window=None):
     """
     window = range(len(vals)) if window == None else window
     wvecs = vecs[:, window] @ np.diag(vals[window])
-    return np.corrcoef(wvecs.transpose())
+    return np.corrcoef(wvecs)
 
 
-def calc_spcorr_trace(vecs: np.ndarray, vals: np.ndarray, paritions: List[range]):
+def calc_spcorr_trace(vecs: np.ndarray, vals: np.ndarray, intervals: List[range]):
     """
     calculates spectral correlation (pearson) within each partition of spectrum and each pair of taxa
     returns matrix where columns are spectral partitions and rows are taxa:taxa pairs
@@ -154,16 +154,16 @@ def calc_spcorr_trace(vecs: np.ndarray, vals: np.ndarray, paritions: List[range]
     Args:
     * vecs: either usv.U or usv.V matrix
     * vals: usv.S singular values vector
-    * groups: usually overlapping windows such as `[range(i,(i+5)) for i in range(len(vals)-5)]`
+    * groups: usually overlapping windows such as `[range(i,(i+5)) for i in range(len(vals)-5+1)]`
 
     Returns:
     * matrix where each column is the condensed uppertriangle of a correlation matrix, (use scipy.spatial.distance.squareform() to recover full matrix)
     """
     wvecs = vecs @ np.diag(vals)
-    sprmtx = np.zeros((comb(vecs.shape[0], 2), vals.shape[0]))
-    I = np.identity(vecs.shape[0])
-    for (i, grp) in paritions:
-        sprmtx[:, i] = squareform(np.corrcoef(wvecs[:, grp].transpose()) - I)
+    sprmtx = np.zeros((int(comb(vecs.shape[0], 2)), len(intervals)))
+    # I = np.identity(vecs.shape[0])
+    for (i, grp) in enumerate(intervals):
+        sprmtx[:, i] = squareform(np.corrcoef(wvecs[:, grp]), "tovector", False)
     return sprmtx
 
 
