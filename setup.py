@@ -69,11 +69,11 @@ setup(
     python_requires='>=3.7',
     install_requires=[
         # eg: 'aspectlib==1.1.1', 'six>=1.7',
-        "numpy>=1.24",
+        "numpy>=1.10",
         # "pandas>=1.5",
-        "scipy>=1.9",
-        "typing>=3.7",
-        "humanize>=4.4"
+        "scipy",
+        "typing",
+        "humanize"
 
     ],
     extras_require={
