@@ -17,7 +17,11 @@ def scaledcumsum(vals: np.ndarray) -> np.ndarray:
 
 
 def minspaceneeded(num, partitions, bits=64):
-    return humanize.natrualsize(comb(num, 2) * partitions * bits)
+    return humanize.naturalsize(comb(num, 2) * partitions * bits)
+
+
+def fullspaceneeded(num, partitions, bits=64):
+    return humanize.naturalsize(num**2 * partitions * bits)
 
 
 def distmatrixsize(num, bits=64):
@@ -216,7 +220,7 @@ def nwstr(hc: np.ndarray, tiplabels: Union[List[str], np.ndarray] = None, labeli
     elif isinstance(tiplabels, np.ndarray):
         tiplabels = [str(x) for x in tiplabels]
     r = hc.shape[0]
-    return _nwstr(hc[:, 0:2].astype(np.int32), hc[:, 3], r-1, r-1, r+1, tiplabels, labelinternalnodes) + ";"
+    return _nwstr(hc[:, 0:2].astype(np.int32), hc[:, 2], r-1, r-1, r+1, tiplabels, labelinternalnodes) + ";"
 
 
 def _nwstr(merges: np.ndarray, heights: np.ndarray, i: int, p: int, n: int, tiplabels: List[str], labelinternalnodes: bool) -> str:
