@@ -64,7 +64,7 @@ Installation
 
 ::
 
-    pip install spipy
+    # pip install spipy # not yet added to pip
 
 You can also install the in-development version with::
 
